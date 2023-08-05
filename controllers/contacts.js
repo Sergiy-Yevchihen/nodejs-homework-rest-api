@@ -2,7 +2,7 @@
 
 const { HttpError, ctrlWrapper } = require("../helpers");
 
-const { addSchema, updateSchema } = require("../schemas/contacts");
+
 
 const contacts = require("../models/contacts");
 
@@ -21,10 +21,7 @@ const getContactById = async (req, res) => {
 };
 
 const addContact = async (req, res) => {
-  //  const { error } = addSchema.validate(req.body);
-  //  if (error) {
-  //    throw HttpError(400, error.message);
-  //  }
+ 
   const result = await contacts.addContact(req.body);
   res.status(201).json(result);
 };
@@ -40,13 +37,33 @@ const removeContact = async (req, res) => {
   });
 };
 
+// const updateContact = async (req, res) => {
+//   if (Object.keys(req.body).length === 0) {
+//     throw HttpError(400, "missing fields");
+//   }
+//   const { id } = req.params;
+//   const result = await contacts.updateContact(id, req.body);
+//   res.status(200).json(result);
+// };
 const updateContact = async (req, res) => {
   if (Object.keys(req.body).length === 0) {
     throw HttpError(400, "missing fields");
   }
+
   const { id } = req.params;
-  const result = await contacts.updateContact(id, req.body);
-  res.status(200).json(result);
+  const contact = await contacts.getContactById(id);
+
+  if (!contact) {
+    throw HttpError(404, "Not found");
+  }
+
+  const updatedContact = {
+    ...contact,
+    ...req.body,
+  };
+
+  await contacts.updateContact(id, updatedContact);
+  res.status(200).json(updatedContact);
 };
 
 module.exports = {

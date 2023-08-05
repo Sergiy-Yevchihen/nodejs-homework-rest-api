@@ -17,7 +17,7 @@ router.put(
   "/:id",
   checkBody,
   validateBody(schemas.addSchema),
-  ctrl.updateContact
+  ctrl.updateContact,
 );
 
 module.exports = router;
