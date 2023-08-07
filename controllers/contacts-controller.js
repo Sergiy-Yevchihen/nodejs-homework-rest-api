@@ -23,6 +23,9 @@ const addContact = async (req, res) => {
 };
 
 const updateContact = async (req, res) => {
+  if (Object.keys(req.body).length === 0) {
+    throw HttpError(400, "missing fields");
+  }
   const { id } = req.params;
   const { body } = req;
   const result = await Contact.findByIdAndUpdate(id, body, { new: true });
