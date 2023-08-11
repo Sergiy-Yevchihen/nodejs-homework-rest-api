@@ -3,8 +3,7 @@ const Joi = require("joi");
 
 const { handleMongooseError } = require("../helpers");
 const nameRegexp = /^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$/;
-const phoneRegexp =
-  /^((\+)?(3)?(8)?[- ]?)?(\(?\d{3}\)?[- ]?)?\d{3}[- ]?\d{2}[- ]?\d{2}$/;
+const phoneRegexp = /^\(\d{3}\) \d{3}-\d{4}$/;
 
 const contactSchema = new Schema(
   {
@@ -26,6 +25,11 @@ const contactSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
   },
   { versionKey: false, timestamps: true }
 );
@@ -38,13 +42,15 @@ const contactAddSchema = Joi.object({
     "string.pattern.base":
       "Name may contain only letters, apostrophe, dash, and spaces. For example, Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan",
   }),
-  email: Joi.string().email().required().messages({
-    "any.required": "field 'email' is missing",
-  }),
+  email: Joi.string()
+    .email()
+    .required()
+    .messages({
+      "any.required": "field 'email' is missing",
+    }),
   phone: Joi.string().pattern(phoneRegexp).required().messages({
-    "any.required": "field 'phone' is missing",
-    "string.pattern.base":
-      "Phone number must be a valid phone number for region UA, digits and can contain spaces, dashes, parentheses and can start with +",
+    "string.pattern.base": `Phone number must be in format: (000) 000-0000`,
+    "any.required": `Missing required phone field`,
   }),
   favorite: Joi.boolean().optional(),
 });
