@@ -3,23 +3,31 @@ const { Router } = require("express");
 const { schemas } = require("../../models/user");
 const { validateBody } = require("../../decorators");
 const ctrl = require("../../controllers/auth-controller");
-const { authenticate, upload } = require("../../middlewares");
+const { authenticate, checkBody, upload } = require("../../middlewares");
 
 const router = Router();
 
 router.post(
   "/register",
-  
+  checkBody,
   validateBody(schemas.registerSchema),
   ctrl.register
 );
 
-router.post("/login", validateBody(schemas.loginSchema), ctrl.login);
+router.get("/verify/:verificationToken", ctrl.verifyEmail);
+
+router.post(
+  "/verify",
+  validateBody(schemas.userEmailSchema),
+  ctrl.repeatEmailVerify
+);
+
+router.post("/login", checkBody, validateBody(schemas.loginSchema), ctrl.login);
 
 router.get("/current", authenticate, ctrl.getCurrent);
 
 router.post("/logout", authenticate, ctrl.logout);
-// authenticate,
+
 router.patch(
   "/users",
   authenticate,
